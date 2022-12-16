@@ -1,37 +1,39 @@
-from medusa_cards import Card
-from data_base import users_message
+from src.data_objects.data_base import DataBase
+from src.auxiliary_objects.card_parent import *
 
-bigfoot_imgs = [f'pictures/bigfoot/cards/{i}.png'.format(i) for i in range(1, 12)]
+data_base = DataBase()
 
 
 class BigfootCard(Card):
     def show_card(self, hero=None):
         if hero is None:
             hero = self.hero
-        img = open(bigfoot_imgs[self.img], 'rb')
+        img = open(self.hero.card_img[self.img], 'rb')
         self.bot.send_photo(hero.id, img)
         img.close()
 
 
+@card_properties(0, 'bigfoot', 3, 2, 'scheme')
 class CrashThroughTheTrees(BigfootCard):
-    img = 0
+    """img = 0
     who = 'bigfoot'
     increase_value = 3
     count_in_deck = 2
-    type = 'scheme'
+    type = 'scheme'"""
 
     def effect(self):
         self.hero.move(5, True, is_effect=True)
 
 
+@card_properties(1, 'all', 2, 2, 'attack', effect=3, value=4)
 class Disengage(BigfootCard):
-    img = 1
+    """img = 1
     who = 'all'
     increase_value = 2
     count_in_deck = 2
     type = 'attack'
     effect_moment = 3
-    value = 4
+    value = 4"""
 
     def effect(self):
         b = self.hero.main_hero.board
@@ -41,7 +43,7 @@ class Disengage(BigfootCard):
             for x in b.color_directions[i]:
                 if x not in places.values():
                     variants.append(x)
-        message = users_message[self.hero.id]
+        message = data_base.users_message[self.hero.id]
         self.bot.send_message(self.hero.id, 'На каую клетку хотите переместиться ?\n' + str(variants) +
                               '\nОтправьте 0, если не хотите перемещаться')
         self.bot.register_next_step_handler(message, lambda message: choose_cell_in_zone_to_move(
@@ -55,7 +57,8 @@ def choose_cell_in_zone_to_move(message, hero, variants, bot):
         int(message.text)
     except:
         bot.send_message(message.chat.id, 'Отправьте НОМЕР клетки')
-        bot.register_next_step_handler(message, lambda message: choose_cell_in_zone_to_move(message, hero, variants, bot))
+        bot.register_next_step_handler(message,
+                                       lambda message: choose_cell_in_zone_to_move(message, hero, variants, bot))
         return
     cell = int(message.text)
     if cell in variants:
@@ -67,57 +70,62 @@ def choose_cell_in_zone_to_move(message, hero, variants, bot):
     bot.register_next_step_handler(message, lambda message: choose_cell_in_zone_to_move(message, hero, variants, bot))
 
 
+@card_properties(2, 'all', 2, 3, 'versatile', effect=1, value=2)
 class FientBigfoot(BigfootCard):
-    img = 2
+    """img = 2
     who = 'all'
     increase_value = 2
     count_in_deck = 3
     type = 'versatile'
     effect_moment = 1
-    value = 2
+    value = 2"""
 
     def effect(self):
         self.enemy.do_effect = False
         self.hero.effect_done = True
 
 
+@card_properties(3, 'all', 2, 3, 'versatile', effect=3, value=4)
 class Hoax(BigfootCard):
-    img = 3
+    """img = 3
     who = 'all'
     increase_value = 2
     count_in_deck = 3
     type = 'versatile'
     effect_moment = 3
-    value = 4
+    value = 4"""
 
     def effect(self):
         self.hero.hero_in_battle.move(5, throug=True, is_effect=True)
 
 
+@card_properties(4, 'all', 3, 2, 'defence', effect=1, value=3)
 class ItsJustYourImagination(BigfootCard):
-    img = 4
+    """img = 4
     who = 'all'
     increase_value = 3
     count_in_deck = 2
     type = 'defence'
     effect_moment = 1
-    value = 3
+    value = 3"""
 
     def effect(self):
         self.enemy.do_effect = False
         self.hero.effect_done = True
 
 
+@card_properties(5, 'jackalope', 2, 3, 'scheme')
 class JackalopeHorns(BigfootCard):
-    img = 5
+    """img = 5
     who = 'lackalope'
     increase_value = 2
     count_in_deck = 3
-    type = 'scheme'
+    type = 'scheme'"""
 
     def effect(self):
         if self.hero.jackalope.hp == 0:
-            self.bot.send_message(self.hero.id, 'Ваш jackalope мертв, вы не можете использовать эту карту, поэтому она просто сбрасывается')
+            self.bot.send_message(self.hero.id,
+                                  'Ваш jackalope мертв, вы не можете использовать эту карту, поэтому она просто сбрасывается')
             return
         variants = []
         places = self.hero.main_hero.places
@@ -138,7 +146,7 @@ class JackalopeHorns(BigfootCard):
             reversed_places[variants[0]].deal_damage(2)
             self.hero.effect_done = True
             return
-        message = users_message[self.hero.id]
+        message = data_base.users_message[self.hero.id]
         self.bot.send_message(self.hero.id, 'Выберите клетку, которую хотите атаковать\n' + str(variants))
         self.bot.register_next_step_handler(message, lambda message: self.choose_adjacent_enemy(message, variants))
 
@@ -161,27 +169,29 @@ class JackalopeHorns(BigfootCard):
         self.bot.register_next_step_handler(message, lambda message: self.choose_adjacent_enemy(message, variants))
 
 
+@card_properties(6, 'bigfoot', 3, 3, 'attack', effect=3, value=6)
 class LargerThenLife(BigfootCard):
-    img = 6
+    """img = 6
     who = 'bigfoot'
     increase_value = 3
     count_in_deck = 3
     type = 'attack'
     effect_moment = 3
-    value = 6
+    value = 6"""
 
     def effect(self):
         self.hero.effect_done = True
 
 
+@card_properties(7, 'all', 1, 3, 'versatile', effect=2, value=3)
 class MomentousShift(BigfootCard):
-    img = 7
+    """img = 7
     who = 'all'
     increase_value = 1
     count_in_deck = 3
     type = 'versatile'
     effect_moment = 2
-    value = 3
+    value = 3"""
 
     def effect(self):
         if self.hero.hero_in_battle.last_cell != self.hero.hero_in_battle.current_cell:
@@ -189,14 +199,15 @@ class MomentousShift(BigfootCard):
         self.hero.effect_done = True
 
 
+@card_properties(8, 'all', 2, 3, 'versatile', effect=3, value=1)
 class RegroupBigfoot(BigfootCard):
-    img = 8
+    """img = 8
     who = 'all'
     increase_value = 2
     count_in_deck = 3
     type = 'versatile'
     effect_moment = 3
-    value = 1
+    value = 1"""
 
     def effect(self):
         self.hero.draw_card()
@@ -205,14 +216,15 @@ class RegroupBigfoot(BigfootCard):
         self.hero.effect_done = True
 
 
+@card_properties(9, 'bigfoot', 3, 3, 'attack', effect=3, value=4)
 class Savagery(BigfootCard):
-    img = 9
+    """img = 9
     who = 'bigfoot'
     increase_value = 3
     count_in_deck = 3
     type = 'attack'
     effect_moment = 3
-    value = 4
+    value = 4"""
 
     def effect(self):
         places = self.hero.main_hero.places
@@ -226,23 +238,24 @@ class Savagery(BigfootCard):
         self.hero.effect_done = True
 
 
+@card_properties(10, 'all', 1, 3, 'versatile', effect=3, value=4)
 class Skrimish(BigfootCard):
-    img = 10
+    """img = 10
     who = 'all'
     increase_value = 1
     count_in_deck = 3
     type = 'versatile'
     effect_moment = 3
-    value = 4
+    value = 4"""
 
     def effect(self):
         if self.hero.win:
             self.bot.send_message(self.hero.id, 'Кого вы хотите переместить ? (себя/противника)')
-            message = users_message[self.hero.id]
+            message = data_base.users_message[self.hero.id]
             self.bot.register_next_step_handler(message, lambda message: self.move_self_or_enemy(message))
 
     def move_self_or_enemy(self, message):
-        if message == users_message[self.hero.id]:
+        if message == data_base.users_message[self.hero.id]:
             self.bot.register_next_step_handler(message, lambda message: self.move_self_or_enemy(message))
             return
         if message.text == 'себя':
